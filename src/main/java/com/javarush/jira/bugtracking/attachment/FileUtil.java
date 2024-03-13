@@ -20,46 +20,68 @@ import java.nio.file.Paths;
 public class FileUtil {
     private static final String ATTACHMENT_PATH = "./attachments/%s/";
 
+//    public static void upload(MultipartFile multipartFile, String directoryPath, String fileName) {
+//        if (multipartFile.isEmpty()) {
+//            throw new IllegalRequestDataException("Select a file to upload.");
+//        }
+//
+//        File dir = new File(directoryPath);
+//        if (dir.exists() || dir.mkdirs()) {
+//            File file = new File(directoryPath + fileName);
+//            try (OutputStream outStream = new FileOutputStream(file)) {
+//                outStream.write(multipartFile.getBytes());
+//            } catch (IOException ex) {
+//                throw new IllegalRequestDataException("Failed to upload file" + multipartFile.getOriginalFilename());
+//            }
+//        }
+//    }
+
     public static void upload(MultipartFile multipartFile, String directoryPath, String fileName) {
         if (multipartFile.isEmpty()) {
             throw new IllegalRequestDataException("Select a file to upload.");
         }
 
-        File dir = new File(directoryPath);
-        if (dir.exists() || dir.mkdirs()) {
-            File file = new File(directoryPath + fileName);
-            try (OutputStream outStream = new FileOutputStream(file)) {
-                outStream.write(multipartFile.getBytes());
+        Path directory = Paths.get(directoryPath);
+        if (!Files.exists(directory)) {
+            try {
+                Files.createDirectories(directory);
             } catch (IOException ex) {
-                throw new IllegalRequestDataException("Failed to upload file" + multipartFile.getOriginalFilename());
+                throw new IllegalRequestDataException("Failed to create directory: " + directoryPath);
             }
         }
-    }
 
-    public static Resource download(String fileLink) {
-        Path path = Paths.get(fileLink);
-        try {
-            Resource resource = new UrlResource(path.toUri());
-            if (resource.exists() || resource.isReadable()) {
-                return resource;
-            } else {
-                throw new IllegalRequestDataException("Failed to download file " + resource.getFilename());
-            }
-        } catch (MalformedURLException ex) {
-            throw new NotFoundException("File" + fileLink + " not found");
-        }
-    }
-
-    public static void delete(String fileLink) {
-        Path path = Paths.get(fileLink);
-        try {
-            Files.delete(path);
+        Path filePath = directory.resolve(fileName);
+        try (OutputStream outStream = Files.newOutputStream(filePath)) {
+            outStream.write(multipartFile.getBytes());
         } catch (IOException ex) {
-            throw new IllegalRequestDataException("File" + fileLink + " deletion failed.");
+            throw new IllegalRequestDataException("Failed to upload file: " + multipartFile.getOriginalFilename());
         }
     }
 
-    public static String getPath(String titleType) {
-        return String.format(ATTACHMENT_PATH, titleType.toLowerCase());
-    }
-}
+            public static Resource download (String fileLink){
+                Path path = Paths.get(fileLink);
+                try {
+                    Resource resource = new UrlResource(path.toUri());
+                    if (resource.exists() || resource.isReadable()) {
+                        return resource;
+                    } else {
+                        throw new IllegalRequestDataException("Failed to download file " + resource.getFilename());
+                    }
+                } catch (MalformedURLException ex) {
+                    throw new NotFoundException("File" + fileLink + " not found");
+                }
+            }
+
+            public static void delete (String fileLink){
+                Path path = Paths.get(fileLink);
+                try {
+                    Files.delete(path);
+                } catch (IOException ex) {
+                    throw new IllegalRequestDataException("File" + fileLink + " deletion failed.");
+                }
+            }
+
+            public static String getPath (String titleType){
+                return String.format(ATTACHMENT_PATH, titleType.toLowerCase());
+            }
+        }
