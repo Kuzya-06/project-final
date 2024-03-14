@@ -18,6 +18,7 @@ public class ProfileTestData {
             Set.of(new ContactTo("skype", "userSkype"),
                     new ContactTo("mobile", "+01234567890"),
                     new ContactTo("website", "user.com")));
+
     public static ProfileTo GUEST_PROFILE_EMPTY_TO = new ProfileTo(null,
             Set.of(),
             Set.of());
@@ -38,7 +39,12 @@ public class ProfileTestData {
 
     public static ProfileTo getUpdatedTo() {
         return new ProfileTo(null,
-                Set.of("assigned", "three_days_before_deadline", "two_days_before_deadline", "one_day_before_deadline", "deadline", "overdue"),
+                Set.of("assigned"
+                        , "three_days_before_deadline"
+                        , "two_days_before_deadline"
+                        , "one_day_before_deadline"
+                        , "deadline"
+                        , "overdue"),
                 Set.of(new ContactTo("skype", "newSkype"),
                         new ContactTo("mobile", "+380987654321"),
                         new ContactTo("website", "new.com"),
